@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/blocto/solana-go-sdk/common"
+	"github.com/jifenkuaile/solana-go-sdk/common"
 	"github.com/mr-tron/base58"
 )
 

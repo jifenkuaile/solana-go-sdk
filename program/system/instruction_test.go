@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blocto/solana-go-sdk/common"
-	"github.com/blocto/solana-go-sdk/types"
+	"github.com/jifenkuaile/solana-go-sdk/common"
+	"github.com/jifenkuaile/solana-go-sdk/types"
 )
 
 func TestCreateAccount(t *testing.T) {

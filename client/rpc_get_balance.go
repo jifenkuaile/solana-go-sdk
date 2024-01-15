@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	"github.com/blocto/solana-go-sdk/rpc"
+	"github.com/jifenkuaile/solana-go-sdk/rpc"
 )
 
 type GetBalanceConfig struct {

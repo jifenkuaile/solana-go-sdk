@@ -4,11 +4,11 @@ import (
 	"context"
 	"log"
 
-	"github.com/blocto/solana-go-sdk/client"
-	"github.com/blocto/solana-go-sdk/common"
-	"github.com/blocto/solana-go-sdk/program/address_lookup_table"
-	"github.com/blocto/solana-go-sdk/rpc"
-	"github.com/blocto/solana-go-sdk/types"
+	"github.com/jifenkuaile/solana-go-sdk/client"
+	"github.com/jifenkuaile/solana-go-sdk/common"
+	"github.com/jifenkuaile/solana-go-sdk/program/address_lookup_table"
+	"github.com/jifenkuaile/solana-go-sdk/rpc"
+	"github.com/jifenkuaile/solana-go-sdk/types"
 )
 
 // FUarP2p5EnxD66vVDL4PWRoWMzA56ZVHG24hpEDFShEz

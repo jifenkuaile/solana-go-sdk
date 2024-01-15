@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/blocto/solana-go-sdk/internal/client_test"
+	"github.com/jifenkuaile/solana-go-sdk/internal/client_test"
 )
 
 func TestGetBlocks(t *testing.T) {

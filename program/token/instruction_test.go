@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blocto/solana-go-sdk/common"
-	"github.com/blocto/solana-go-sdk/pkg/pointer"
-	"github.com/blocto/solana-go-sdk/types"
+	"github.com/jifenkuaile/solana-go-sdk/common"
+	"github.com/jifenkuaile/solana-go-sdk/pkg/pointer"
+	"github.com/jifenkuaile/solana-go-sdk/types"
 )
 
 func TestInitializeMint(t *testing.T) {

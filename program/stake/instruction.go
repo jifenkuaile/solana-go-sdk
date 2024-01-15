@@ -1,9 +1,9 @@
 package stake
 
 import (
-	"github.com/blocto/solana-go-sdk/common"
-	"github.com/blocto/solana-go-sdk/pkg/bincode"
-	"github.com/blocto/solana-go-sdk/types"
+	"github.com/jifenkuaile/solana-go-sdk/common"
+	"github.com/jifenkuaile/solana-go-sdk/pkg/bincode"
+	"github.com/jifenkuaile/solana-go-sdk/types"
 )
 
 const AccountSize uint64 = 200
