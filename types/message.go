@@ -111,7 +111,7 @@ func (m *Message) DecompileInstructions() []Instruction {
 	case MessageVersionLegacy:
 		return m.decompileLegacyMessageInstructions()
 	case MessageVersionV0:
-		panic("hasn't supported")
+		return []Instruction{}
 	default:
 		return m.decompileLegacyMessageInstructions()
 	}
