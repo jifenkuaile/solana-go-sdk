@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"github.com/jifenkuaile/solana-go-sdk/common"
 	"github.com/jifenkuaile/solana-go-sdk/pkg/bincode"
 	"github.com/jifenkuaile/solana-go-sdk/types"
@@ -24,6 +25,10 @@ const (
 	InstructionUpgradeNonceAccount
 )
 
+type InstructionStruct struct {
+	Instruction Instruction
+}
+
 type CreateAccountParam struct {
 	From     common.PublicKey
 	New      common.PublicKey
@@ -32,13 +37,15 @@ type CreateAccountParam struct {
 	Space    uint64
 }
 
+type CreateAccountStruct struct {
+	Instruction Instruction
+	Lamports    uint64
+	Space       uint64
+	Owner       common.PublicKey
+}
+
 func CreateAccount(param CreateAccountParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Lamports    uint64
-		Space       uint64
-		Owner       common.PublicKey
-	}{
+	data, err := bincode.SerializeData(CreateAccountStruct{
 		Instruction: InstructionCreateAccount,
 		Lamports:    param.Lamports,
 		Space:       param.Space,
@@ -63,11 +70,13 @@ type AssignParam struct {
 	Owner common.PublicKey
 }
 
+type AssignStruct struct {
+	Instruction       Instruction
+	AssignToProgramID common.PublicKey
+}
+
 func Assign(param AssignParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction       Instruction
-		AssignToProgramID common.PublicKey
-	}{
+	data, err := bincode.SerializeData(AssignStruct{
 		Instruction:       InstructionAssign,
 		AssignToProgramID: param.Owner,
 	})
@@ -90,11 +99,13 @@ type TransferParam struct {
 	Amount uint64
 }
 
+type TransferStruct struct {
+	Instruction Instruction
+	Lamports    uint64
+}
+
 func Transfer(param TransferParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Lamports    uint64
-	}{
+	data, err := bincode.SerializeData(TransferStruct{
 		Instruction: InstructionTransfer,
 		Lamports:    param.Amount,
 	})
@@ -122,15 +133,17 @@ type CreateAccountWithSeedParam struct {
 	Space    uint64
 }
 
+type CreateAccountWithSeedStruct struct {
+	Instruction Instruction
+	Base        common.PublicKey
+	Seed        string
+	Lamports    uint64
+	Space       uint64
+	ProgramID   common.PublicKey
+}
+
 func CreateAccountWithSeed(param CreateAccountWithSeedParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Base        common.PublicKey
-		Seed        string
-		Lamports    uint64
-		Space       uint64
-		ProgramID   common.PublicKey
-	}{
+	data, err := bincode.SerializeData(CreateAccountWithSeedStruct{
 		Instruction: InstructionCreateAccountWithSeed,
 		Base:        param.Base,
 		Seed:        param.Seed,
@@ -163,10 +176,12 @@ type AdvanceNonceAccountParam struct {
 	Auth  common.PublicKey
 }
 
+type AdvanceNonceAccountStruct struct {
+	Instruction Instruction
+}
+
 func AdvanceNonceAccount(param AdvanceNonceAccountParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-	}{
+	data, err := bincode.SerializeData(AdvanceNonceAccountStruct{
 		Instruction: InstructionAdvanceNonceAccount,
 	})
 	if err != nil {
@@ -191,11 +206,13 @@ type WithdrawNonceAccountParam struct {
 	Amount uint64
 }
 
+type WithdrawNonceAccountStruct struct {
+	Instruction Instruction
+	Lamports    uint64
+}
+
 func WithdrawNonceAccount(param WithdrawNonceAccountParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Lamports    uint64
-	}{
+	data, err := bincode.SerializeData(WithdrawNonceAccountStruct{
 		Instruction: InstructionWithdrawNonceAccount,
 		Lamports:    param.Amount,
 	})
@@ -221,11 +238,13 @@ type InitializeNonceAccountParam struct {
 	Auth  common.PublicKey
 }
 
+type InitializeNonceAccountStruct struct {
+	Instruction Instruction
+	Auth        common.PublicKey
+}
+
 func InitializeNonceAccount(param InitializeNonceAccountParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Auth        common.PublicKey
-	}{
+	data, err := bincode.SerializeData(InitializeNonceAccountStruct{
 		Instruction: InstructionInitializeNonceAccount,
 		Auth:        param.Auth,
 	})
@@ -250,11 +269,13 @@ type AuthorizeNonceAccountParam struct {
 	NewAuth common.PublicKey
 }
 
+type AuthorizeNonceAccountStruct struct {
+	Instruction Instruction
+	Auth        common.PublicKey
+}
+
 func AuthorizeNonceAccount(param AuthorizeNonceAccountParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Auth        common.PublicKey
-	}{
+	data, err := bincode.SerializeData(AuthorizeNonceAccountStruct{
 		Instruction: InstructionAuthorizeNonceAccount,
 		Auth:        param.NewAuth,
 	})
@@ -277,11 +298,13 @@ type AllocateParam struct {
 	Space   uint64
 }
 
+type AllocateStruct struct {
+	Instruction Instruction
+	Space       uint64
+}
+
 func Allocate(param AllocateParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Space       uint64
-	}{
+	data, err := bincode.SerializeData(AllocateStruct{
 		Instruction: InstructionAllocate,
 		Space:       param.Space,
 	})
@@ -306,14 +329,16 @@ type AllocateWithSeedParam struct {
 	Space   uint64
 }
 
+type AllocateWithSeedStruct struct {
+	Instruction Instruction
+	Base        common.PublicKey
+	Seed        string
+	Space       uint64
+	ProgramID   common.PublicKey
+}
+
 func AllocateWithSeed(param AllocateWithSeedParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Base        common.PublicKey
-		Seed        string
-		Space       uint64
-		ProgramID   common.PublicKey
-	}{
+	data, err := bincode.SerializeData(AllocateWithSeedStruct{
 		Instruction: InstructionAllocateWithSeed,
 		Base:        param.Base,
 		Seed:        param.Seed,
@@ -341,13 +366,15 @@ type AssignWithSeedParam struct {
 	Seed    string
 }
 
+type AssignWithSeedStruct struct {
+	Instruction       Instruction
+	Base              common.PublicKey
+	Seed              string
+	AssignToProgramID common.PublicKey
+}
+
 func AssignWithSeed(param AssignWithSeedParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction       Instruction
-		Base              common.PublicKey
-		Seed              string
-		AssignToProgramID common.PublicKey
-	}{
+	data, err := bincode.SerializeData(AssignWithSeedStruct{
 		Instruction:       InstructionAssignWithSeed,
 		Base:              param.Base,
 		Seed:              param.Seed,
@@ -376,13 +403,15 @@ type TransferWithSeedParam struct {
 	Amount uint64
 }
 
+type TransferWithSeedStruct struct {
+	Instruction Instruction
+	Lamports    uint64
+	Seed        string
+	ProgramID   common.PublicKey
+}
+
 func TransferWithSeed(param TransferWithSeedParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Lamports    uint64
-		Seed        string
-		ProgramID   common.PublicKey
-	}{
+	data, err := bincode.SerializeData(TransferWithSeedStruct{
 		Instruction: InstructionTransferWithSeed,
 		Lamports:    param.Amount,
 		Seed:        param.Seed,
@@ -407,10 +436,12 @@ type UpgradeNonceAccountParam struct {
 	NonceAccountPubkey common.PublicKey
 }
 
+type UpgradeNonceAccountStruct struct {
+	Instruction Instruction
+}
+
 func UpgradeNonceAccount(param UpgradeNonceAccountParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-	}{
+	data, err := bincode.SerializeData(UpgradeNonceAccountStruct{
 		Instruction: InstructionUpgradeNonceAccount,
 	})
 	if err != nil {
@@ -424,4 +455,24 @@ func UpgradeNonceAccount(param UpgradeNonceAccountParam) types.Instruction {
 		},
 		Data: data,
 	}
+}
+
+func GetInstructionType(data []byte) (Instruction, error) {
+	instructionType := &InstructionStruct{}
+
+	err := bincode.DeserializeData(data, instructionType)
+	if err != nil {
+		return 0, fmt.Errorf("unknown instructionType")
+	}
+
+	return instructionType.Instruction, nil
+}
+
+func DeSerializeInstruction(data []byte, instruction interface{}) error {
+	err := bincode.DeserializeData(data, instruction)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

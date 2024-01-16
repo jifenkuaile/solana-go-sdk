@@ -264,8 +264,31 @@ func TestTransfer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Transfer(tt.args.param); !reflect.DeepEqual(got, tt.want) {
+			got := Transfer(tt.args.param)
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Transfer() = %v, want %v", got, tt.want)
+			}
+
+			gotType, err := GetInstructionType(got.Data)
+			if err != nil {
+				t.Errorf("Transfer() get instructionType err, err: %v", err.Error())
+			} else if gotType != InstructionTransfer {
+				t.Errorf("Transfer() want instructionType: %v, got: %v", InstructionTransfer, gotType)
+			}
+
+			afterDeserialize := &TransferStruct{}
+			err = DeSerializeInstruction(got.Data, afterDeserialize)
+			if err != nil {
+				t.Errorf("error when deserialize instruction, err: %v", err.Error())
+			}
+
+			if afterDeserialize.Amount != tt.args.param.Amount {
+				t.Errorf("amount not equal after deserialize, got: %v, want: %v", afterDeserialize.Amount, tt.args.param.Amount)
+			}
+
+			if afterDeserialize.Instruction != InstructionTransfer {
+				t.Errorf("error after deserialize instruction, got instruction type: %v, want: %v",
+					afterDeserialize.Instruction, InstructionTransfer)
 			}
 		})
 	}
@@ -334,8 +357,31 @@ func TestTransferChecked(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := TransferChecked(tt.args.param); !reflect.DeepEqual(got, tt.want) {
+			got := TransferChecked(tt.args.param)
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("TransferChecked() = %v, want %v", got, tt.want)
+			}
+
+			gotType, err := GetInstructionType(got.Data)
+			if err != nil {
+				t.Errorf("Transfer() get instructionType err, err: %v", err.Error())
+			} else if gotType != InstructionTransferChecked {
+				t.Errorf("Transfer() want instructionType: %v, got: %v", InstructionTransferChecked, gotType)
+			}
+
+			afterDeserialize := &TransferStruct{}
+			err = DeSerializeInstruction(got.Data, afterDeserialize)
+			if err != nil {
+				t.Errorf("error when deserialize instruction, err: %v", err.Error())
+			}
+
+			if afterDeserialize.Amount != tt.args.param.Amount {
+				t.Errorf("amount not equal after deserialize, got: %v, want: %v", afterDeserialize.Amount, tt.args.param.Amount)
+			}
+
+			if afterDeserialize.Instruction != InstructionTransferChecked {
+				t.Errorf("error after deserialize instruction, got instruction type: %v, want: %v",
+					afterDeserialize.Instruction, InstructionTransferChecked)
 			}
 		})
 	}

@@ -1,6 +1,7 @@
 package token
 
 import (
+	"fmt"
 	"github.com/jifenkuaile/solana-go-sdk/common"
 	"github.com/jifenkuaile/solana-go-sdk/pkg/bincode"
 	"github.com/jifenkuaile/solana-go-sdk/types"
@@ -32,11 +33,23 @@ const (
 	InstructionInitializeMint2
 )
 
+type InstructionStruct struct {
+	Instruction Instruction
+}
+
 type InitializeMintParam struct {
 	Decimals   uint8
 	Mint       common.PublicKey
 	MintAuth   common.PublicKey
 	FreezeAuth *common.PublicKey
+}
+
+type InitializeMintStruct struct {
+	Instruction     Instruction
+	Decimals        uint8
+	MintAuthority   common.PublicKey
+	Option          bool
+	FreezeAuthority common.PublicKey
 }
 
 // InitializeMint init a mint, if you don't need to freeze, pass the empty pubKey common.PublicKey{}
@@ -45,13 +58,7 @@ func InitializeMint(param InitializeMintParam) types.Instruction {
 	if param.FreezeAuth != nil {
 		freezeAuth = *param.FreezeAuth
 	}
-	data, err := bincode.SerializeData(struct {
-		Instruction     Instruction
-		Decimals        uint8
-		MintAuthority   common.PublicKey
-		Option          bool
-		FreezeAuthority common.PublicKey
-	}{
+	data, err := bincode.SerializeData(InitializeMintStruct{
 		Instruction:     InstructionInitializeMint,
 		Decimals:        param.Decimals,
 		MintAuthority:   param.MintAuth,
@@ -78,11 +85,13 @@ type InitializeAccountParam struct {
 	Owner   common.PublicKey
 }
 
+type InitializeAccountStruct struct {
+	Instruction Instruction
+}
+
 // InitializeAccount init a token account which can receive token
 func InitializeAccount(param InitializeAccountParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-	}{
+	data, err := bincode.SerializeData(InitializeAccountStruct{
 		Instruction: InstructionInitializeAccount,
 	})
 	if err != nil {
@@ -108,6 +117,11 @@ type InitializeMultisigParam struct {
 	MinRequired uint8
 }
 
+type InitializeMultisigStruct struct {
+	Instruction     Instruction
+	MinimumRequired uint8
+}
+
 func InitializeMultisig(param InitializeMultisigParam) types.Instruction {
 	if len(param.Signers) < 1 {
 		panic("minimum of signer is 1")
@@ -119,10 +133,7 @@ func InitializeMultisig(param InitializeMultisigParam) types.Instruction {
 		panic("required number too big")
 	}
 
-	data, err := bincode.SerializeData(struct {
-		Instruction     Instruction
-		MinimumRequired uint8
-	}{
+	data, err := bincode.SerializeData(InitializeMultisigStruct{
 		Instruction:     InstructionInitializeMultisig,
 		MinimumRequired: param.MinRequired,
 	})
@@ -154,11 +165,13 @@ type TransferParam struct {
 	Amount  uint64
 }
 
+type TransferStruct struct {
+	Instruction Instruction
+	Amount      uint64
+}
+
 func Transfer(param TransferParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Amount      uint64
-	}{
+	data, err := bincode.SerializeData(TransferStruct{
 		Instruction: InstructionTransfer,
 		Amount:      param.Amount,
 	})
@@ -188,11 +201,13 @@ type ApproveParam struct {
 	Amount  uint64
 }
 
+type ApproveStruct struct {
+	Instruction Instruction
+	Amount      uint64
+}
+
 func Approve(param ApproveParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Amount      uint64
-	}{
+	data, err := bincode.SerializeData(ApproveStruct{
 		Instruction: InstructionApprove,
 		Amount:      param.Amount,
 	})
@@ -221,10 +236,12 @@ type RevokeParam struct {
 	Signers []common.PublicKey
 }
 
+type RevokeStruct struct {
+	Instruction Instruction
+}
+
 func Revoke(param RevokeParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-	}{
+	data, err := bincode.SerializeData(RevokeStruct{
 		Instruction: InstructionRevoke,
 	})
 	if err != nil {
@@ -264,17 +281,19 @@ type SetAuthorityParam struct {
 	Signers  []common.PublicKey
 }
 
+type SetAuthorityStruct struct {
+	Instruction   Instruction
+	AuthorityType AuthorityType
+	Option        bool
+	NewAuthPubkey common.PublicKey
+}
+
 func SetAuthority(param SetAuthorityParam) types.Instruction {
 	var newAuth common.PublicKey
 	if param.NewAuth != nil {
 		newAuth = *param.NewAuth
 	}
-	data, err := bincode.SerializeData(struct {
-		Instruction   Instruction
-		AuthorityType AuthorityType
-		Option        bool
-		NewAuthPubkey common.PublicKey
-	}{
+	data, err := bincode.SerializeData(SetAuthorityStruct{
 		Instruction:   InstructionSetAuthority,
 		AuthorityType: param.AuthType,
 		Option:        param.NewAuth != nil,
@@ -308,11 +327,13 @@ type MintToParam struct {
 	Amount  uint64
 }
 
+type MintToStruct struct {
+	Instruction Instruction
+	Amount      uint64
+}
+
 func MintTo(param MintToParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Amount      uint64
-	}{
+	data, err := bincode.SerializeData(MintToStruct{
 		Instruction: InstructionMintTo,
 		Amount:      param.Amount,
 	})
@@ -345,11 +366,13 @@ type BurnParam struct {
 	Amount  uint64
 }
 
+type BurnStruct struct {
+	Instruction Instruction
+	Amount      uint64
+}
+
 func Burn(param BurnParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Amount      uint64
-	}{
+	data, err := bincode.SerializeData(BurnStruct{
 		Instruction: InstructionBurn,
 		Amount:      param.Amount,
 	})
@@ -381,11 +404,13 @@ type CloseAccountParam struct {
 	To      common.PublicKey
 }
 
+type CloseAccountStruct struct {
+	Instruction Instruction
+}
+
 // Close an account and transfer its all SOL to dest, only account's token balance is zero can be closed.
 func CloseAccount(param CloseAccountParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-	}{
+	data, err := bincode.SerializeData(CloseAccountStruct{
 		Instruction: InstructionCloseAccount,
 	})
 	if err != nil {
@@ -414,10 +439,12 @@ type FreezeAccountParam struct {
 	Signers []common.PublicKey
 }
 
+type FreezeAccountStruct struct {
+	Instruction Instruction
+}
+
 func FreezeAccount(param FreezeAccountParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-	}{
+	data, err := bincode.SerializeData(FreezeAccountStruct{
 		Instruction: InstructionFreezeAccount,
 	})
 	if err != nil {
@@ -446,10 +473,12 @@ type ThawAccountParam struct {
 	Signers []common.PublicKey
 }
 
+type ThawAccountStruct struct {
+	Instruction Instruction
+}
+
 func ThawAccount(param ThawAccountParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-	}{
+	data, err := bincode.SerializeData(ThawAccountStruct{
 		Instruction: InstructionThawAccount,
 	})
 	if err != nil {
@@ -481,12 +510,14 @@ type TransferCheckedParam struct {
 	Decimals uint8
 }
 
+type TransferCheckedStruct struct {
+	Instruction Instruction
+	Amount      uint64
+	Decimals    uint8
+}
+
 func TransferChecked(param TransferCheckedParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Amount      uint64
-		Decimals    uint8
-	}{
+	data, err := bincode.SerializeData(TransferCheckedStruct{
 		Instruction: InstructionTransferChecked,
 		Amount:      param.Amount,
 		Decimals:    param.Decimals,
@@ -521,12 +552,14 @@ type ApproveCheckedParam struct {
 	Decimals uint8
 }
 
+type ApproveCheckedStruct struct {
+	Instruction Instruction
+	Amount      uint64
+	Decimals    uint8
+}
+
 func ApproveChecked(param ApproveCheckedParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Amount      uint64
-		Decimals    uint8
-	}{
+	data, err := bincode.SerializeData(ApproveCheckedStruct{
 		Instruction: InstructionApproveChecked,
 		Amount:      param.Amount,
 		Decimals:    param.Decimals,
@@ -560,12 +593,14 @@ type MintToCheckedParam struct {
 	Decimals uint8
 }
 
+type MintToCheckedStruct struct {
+	Instruction Instruction
+	Amount      uint64
+	Decimals    uint8
+}
+
 func MintToChecked(param MintToCheckedParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Amount      uint64
-		Decimals    uint8
-	}{
+	data, err := bincode.SerializeData(MintToCheckedStruct{
 		Instruction: InstructionMintToChecked,
 		Amount:      param.Amount,
 		Decimals:    param.Decimals,
@@ -600,12 +635,14 @@ type BurnCheckedParam struct {
 	Decimals uint8
 }
 
+type BurnCheckedStruct struct {
+	Instruction Instruction
+	Amount      uint64
+	Decimals    uint8
+}
+
 func BurnChecked(param BurnCheckedParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Amount      uint64
-		Decimals    uint8
-	}{
+	data, err := bincode.SerializeData(BurnCheckedStruct{
 		Instruction: InstructionBurnChecked,
 		Amount:      param.Amount,
 		Decimals:    param.Decimals,
@@ -637,11 +674,13 @@ type InitializeAccount2Param struct {
 	Owner   common.PublicKey
 }
 
+type InitializeAccount2Struct struct {
+	Instruction Instruction
+	Owner       common.PublicKey
+}
+
 func InitializeAccount2(param InitializeAccount2Param) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Owner       common.PublicKey
-	}{
+	data, err := bincode.SerializeData(InitializeAccount2Struct{
 		Instruction: InstructionInitializeAccount2,
 		Owner:       param.Owner,
 	})
@@ -664,11 +703,13 @@ type SyncNativeParam struct {
 	Account common.PublicKey
 }
 
+type SyncNativeStruct struct {
+	Instruction Instruction
+}
+
 // SyncNative will update your wrapped SOL balance
 func SyncNative(param SyncNativeParam) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-	}{
+	data, err := bincode.SerializeData(SyncNativeStruct{
 		Instruction: InstructionSyncNative,
 	})
 	if err != nil {
@@ -690,11 +731,13 @@ type InitializeAccount3Param struct {
 	Owner   common.PublicKey
 }
 
+type InitializeAccount3Struct struct {
+	Instruction Instruction
+	Owner       common.PublicKey
+}
+
 func InitializeAccount3(param InitializeAccount3Param) types.Instruction {
-	data, err := bincode.SerializeData(struct {
-		Instruction Instruction
-		Owner       common.PublicKey
-	}{
+	data, err := bincode.SerializeData(InitializeAccount3Struct{
 		Instruction: InstructionInitializeAccount3,
 		Owner:       param.Owner,
 	})
@@ -718,6 +761,11 @@ type InitializeMultisig2Param struct {
 	MinRequired uint8
 }
 
+type InitializeMultisig2Struct struct {
+	Instruction     Instruction
+	MinimumRequired uint8
+}
+
 func InitializeMultisig2(param InitializeMultisig2Param) types.Instruction {
 	if len(param.Signers) < 1 {
 		panic("minimum of signer is 1")
@@ -729,10 +777,7 @@ func InitializeMultisig2(param InitializeMultisig2Param) types.Instruction {
 		panic("required number too big")
 	}
 
-	data, err := bincode.SerializeData(struct {
-		Instruction     Instruction
-		MinimumRequired uint8
-	}{
+	data, err := bincode.SerializeData(InitializeMultisig2Struct{
 		Instruction:     InstructionInitializeMultisig2,
 		MinimumRequired: param.MinRequired,
 	})
@@ -762,18 +807,20 @@ type InitializeMint2Param struct {
 	FreezeAuth *common.PublicKey
 }
 
+type InitializeMint2Struct struct {
+	Instruction     Instruction
+	Decimals        uint8
+	MintAuthority   common.PublicKey
+	Option          bool
+	FreezeAuthority common.PublicKey
+}
+
 func InitializeMint2(param InitializeMint2Param) types.Instruction {
 	var freezeAuth common.PublicKey
 	if param.FreezeAuth != nil {
 		freezeAuth = *param.FreezeAuth
 	}
-	data, err := bincode.SerializeData(struct {
-		Instruction     Instruction
-		Decimals        uint8
-		MintAuthority   common.PublicKey
-		Option          bool
-		FreezeAuthority common.PublicKey
-	}{
+	data, err := bincode.SerializeData(InitializeMint2Struct{
 		Instruction:     InstructionInitializeMint2,
 		Decimals:        param.Decimals,
 		MintAuthority:   param.MintAuth,
@@ -791,4 +838,24 @@ func InitializeMint2(param InitializeMint2Param) types.Instruction {
 		},
 		Data: data,
 	}
+}
+
+func GetInstructionType(data []byte) (Instruction, error) {
+	instructionType := &InstructionStruct{}
+
+	err := bincode.DeserializeData(data, instructionType)
+	if err != nil {
+		return 0, fmt.Errorf("unknown instructionType")
+	}
+
+	return instructionType.Instruction, nil
+}
+
+func DeSerializeInstruction(data []byte, instruction interface{}) error {
+	err := bincode.DeserializeData(data, instruction)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
