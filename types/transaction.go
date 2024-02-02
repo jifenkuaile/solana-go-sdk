@@ -74,9 +74,9 @@ func (tx *Transaction) AddSignature(sig []byte) error {
 
 // Serialize pack tx into byte array
 func (tx *Transaction) Serialize() ([]byte, error) {
-	if len(tx.Signatures) == 0 || len(tx.Signatures) != int(tx.Message.Header.NumRequireSignatures) {
-		return nil, errors.New("Signature verification failed")
-	}
+	//if len(tx.Signatures) == 0 || len(tx.Signatures) != int(tx.Message.Header.NumRequireSignatures) {
+	//	return nil, errors.New("Signature verification failed")
+	//}
 
 	signatureCount := bincode.UintToVarLenBytes(uint64(len(tx.Signatures)))
 	messageData, err := tx.Message.Serialize()
@@ -100,9 +100,9 @@ func TransactionDeserialize(tx []byte) (Transaction, error) {
 	if err != nil {
 		return Transaction{}, fmt.Errorf("parse signature count error: %v", err)
 	}
-	if signatureCount < 1 {
-		return Transaction{}, errors.New("signature count must be greater than or equal to 1")
-	}
+	//if signatureCount < 1 {
+	//	return Transaction{}, errors.New("signature count must be greater than or equal to 1")
+	//}
 	if len(tx) < int(signatureCount)*64 {
 		return Transaction{}, errors.New("parse signature error")
 	}
@@ -117,9 +117,9 @@ func TransactionDeserialize(tx []byte) (Transaction, error) {
 		return Transaction{}, fmt.Errorf("failed to parse message, err: %v", err)
 	}
 
-	if uint64(message.Header.NumRequireSignatures) != signatureCount {
-		return Transaction{}, errors.New("numRequireSignatures is not equal to signatureCount")
-	}
+	//if uint64(message.Header.NumRequireSignatures) != signatureCount {
+	//	return Transaction{}, errors.New("numRequireSignatures is not equal to signatureCount")
+	//}
 
 	return Transaction{
 		Signatures: signatures,
