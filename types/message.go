@@ -156,6 +156,10 @@ func (m Message) decompileV0MessageInstructions(meta *rpc.TransactionMeta) []Ins
 	for _, cins := range m.Instructions {
 		accounts := make([]AccountMeta, 0, len(cins.Accounts))
 		for i := 0; i < len(cins.Accounts); i++ {
+			if cins.Accounts[i] >= len(accountList) {
+				continue
+			}
+
 			accounts = append(accounts, AccountMeta{
 				PubKey:   accountList[cins.Accounts[i]],
 				IsSigner: cins.Accounts[i] < int(m.Header.NumRequireSignatures),
