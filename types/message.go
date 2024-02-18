@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/jifenkuaile/solana-go-sdk/rpc"
 	"sort"
 	"strconv"
 
@@ -106,12 +107,12 @@ func (m *Message) Serialize() ([]byte, error) {
 }
 
 // DecompileInstructions hasn't support v0 message decode
-func (m *Message) DecompileInstructions() []Instruction {
+func (m *Message) DecompileInstructions(meta *rpc.TransactionMeta) []Instruction {
 	switch m.Version {
 	case MessageVersionLegacy:
 		return m.decompileLegacyMessageInstructions()
 	case MessageVersionV0:
-		return []Instruction{}
+		return m.decompileV0MessageInstructions(meta)
 	default:
 		return m.decompileLegacyMessageInstructions()
 	}
@@ -132,6 +133,39 @@ func (m Message) decompileLegacyMessageInstructions() []Instruction {
 		}
 		instructions = append(instructions, Instruction{
 			ProgramID: m.Accounts[cins.ProgramIDIndex],
+			Accounts:  accounts,
+			Data:      cins.Data,
+		})
+	}
+	return instructions
+}
+
+func (m Message) decompileV0MessageInstructions(meta *rpc.TransactionMeta) []Instruction {
+	accountList := m.Accounts
+	if meta != nil {
+		for _, addr := range meta.LoadedAddresses.Writable {
+			accountList = append(accountList, common.PublicKeyFromString(addr))
+		}
+
+		for _, addr := range meta.LoadedAddresses.Readonly {
+			accountList = append(accountList, common.PublicKeyFromString(addr))
+		}
+	}
+
+	instructions := make([]Instruction, 0, len(m.Instructions))
+	for _, cins := range m.Instructions {
+		accounts := make([]AccountMeta, 0, len(cins.Accounts))
+		for i := 0; i < len(cins.Accounts); i++ {
+			accounts = append(accounts, AccountMeta{
+				PubKey:   accountList[cins.Accounts[i]],
+				IsSigner: cins.Accounts[i] < int(m.Header.NumRequireSignatures),
+				IsWritable: cins.Accounts[i] < int(m.Header.NumRequireSignatures-m.Header.NumReadonlySignedAccounts) ||
+					(cins.Accounts[i] >= int(m.Header.NumRequireSignatures) &&
+						cins.Accounts[i] < len(accountList)-int(m.Header.NumReadonlyUnsignedAccounts)),
+			})
+		}
+		instructions = append(instructions, Instruction{
+			ProgramID: accountList[cins.ProgramIDIndex],
 			Accounts:  accounts,
 			Data:      cins.Data,
 		})

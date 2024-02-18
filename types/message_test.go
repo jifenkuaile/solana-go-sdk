@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/jifenkuaile/solana-go-sdk/common"
+	"github.com/jifenkuaile/solana-go-sdk/rpc"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,6 +17,7 @@ func TestMessage_DecompileInstructions(t *testing.T) {
 		RecentBlockHash     string
 		Instructions        []CompiledInstruction
 		AddressLookupTables []CompiledAddressLookupTable
+		Meta                *rpc.TransactionMeta
 	}
 	tests := []struct {
 		name   string
@@ -110,7 +112,17 @@ func TestMessage_DecompileInstructions(t *testing.T) {
 					},
 				},
 			},
-			panic: "hasn't supported",
+			want: []Instruction{
+				{
+					Accounts: []AccountMeta{
+						{PubKey: common.PublicKeyFromString("9aE476sH92Vz7DMPyq5WLPkrKWivxeuTKEFKd2sZZcde"), IsSigner: true, IsWritable: true},
+						{PubKey: common.PublicKeyFromString("2xNweLHLqrbx4zo1waDvgWJHgsUpPj8Y8icbAFeR4a8i"), IsSigner: false, IsWritable: true},
+					},
+					ProgramID: common.SystemProgramID,
+					Data:      []byte{2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+				},
+			},
+			//panic: "hasn't supported",
 		},
 		{
 			fields: fields{
@@ -141,7 +153,17 @@ func TestMessage_DecompileInstructions(t *testing.T) {
 					},
 				},
 			},
-			panic: "hasn't supported",
+			want: []Instruction{
+				{
+					Accounts: []AccountMeta{
+						{PubKey: common.PublicKeyFromString("9aE476sH92Vz7DMPyq5WLPkrKWivxeuTKEFKd2sZZcde"), IsSigner: true, IsWritable: true},
+						{PubKey: common.PublicKeyFromString("2xNweLHLqrbx4zo1waDvgWJHgsUpPj8Y8icbAFeR4a8i"), IsSigner: false, IsWritable: true},
+					},
+					ProgramID: common.SystemProgramID,
+					Data:      []byte{2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+				},
+			},
+			//panic: "hasn't supported",
 		},
 		{
 			fields: fields{
@@ -170,8 +192,24 @@ func TestMessage_DecompileInstructions(t *testing.T) {
 						ReadonlyIndexes: []uint8{},
 					},
 				},
+				Meta: &rpc.TransactionMeta{
+					LoadedAddresses: rpc.TransactionLoadedAddresses{
+						Writable: []string{"2xNweLHLqrbx4zo1waDvgWJHgsUpPj8Y8icbAFeR4a8i"},
+						Readonly: nil,
+					},
+				},
 			},
-			panic: "hasn't supported",
+			want: []Instruction{
+				{
+					Accounts: []AccountMeta{
+						{PubKey: common.PublicKeyFromString("9aE476sH92Vz7DMPyq5WLPkrKWivxeuTKEFKd2sZZcde"), IsSigner: true, IsWritable: true},
+						{PubKey: common.PublicKeyFromString("2xNweLHLqrbx4zo1waDvgWJHgsUpPj8Y8icbAFeR4a8i"), IsSigner: false, IsWritable: false},
+					},
+					ProgramID: common.SystemProgramID,
+					Data:      []byte{2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+				},
+			},
+			//panic: "hasn't supported",
 		},
 	}
 	for _, tt := range tests {
@@ -185,10 +223,10 @@ func TestMessage_DecompileInstructions(t *testing.T) {
 				AddressLookupTables: tt.fields.AddressLookupTables,
 			}
 			if len(tt.panic) == 0 {
-				assert.Equal(t, tt.want, m.DecompileInstructions())
+				assert.Equal(t, tt.want, m.DecompileInstructions(tt.fields.Meta))
 			} else {
 				assert.PanicsWithValue(t, tt.panic, func() {
-					m.DecompileInstructions()
+					m.DecompileInstructions(tt.fields.Meta)
 				})
 			}
 		})
