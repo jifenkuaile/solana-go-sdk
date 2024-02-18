@@ -62,9 +62,9 @@ func (tx *Transaction) AddSignature(sig []byte) error {
 	if err != nil {
 		return fmt.Errorf("failed to serialize message, err: %v", err)
 	}
-	if len(tx.Signatures) <= tx.Message.Header.NumRequireSignatures {
-		newSignatures := make([][]byte, tx.Message.Header.NumRequireSignatures)
-		for i, sign := tx.Signatures {
+	if len(tx.Signatures) <= int(tx.Message.Header.NumRequireSignatures) {
+		newSignatures := make([]Signature, tx.Message.Header.NumRequireSignatures)
+		for i, sign := range tx.Signatures {
 			newSignatures[i] = sign
 		}
 
